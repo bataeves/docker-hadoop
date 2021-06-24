@@ -2,11 +2,11 @@ version: "3"
 
 services:
   namenode:
-    image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
+    image: bataeves/hadoop-namenode:2.0.0-hadoop2.10.1-java8
     container_name: namenode
     restart: always
     ports:
-      - 9870:9870
+      - 50070:50070
       - 9000:9000
     volumes:
       - hadoop_namenode:/hadoop/dfs/name
@@ -16,44 +16,51 @@ services:
       - ./hadoop.env
 
   datanode:
-    image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
+    image: bataeves/hadoop-datanode:2.0.0-hadoop2.10.1-java8
     container_name: datanode
     restart: always
     volumes:
       - hadoop_datanode:/hadoop/dfs/data
     environment:
-      SERVICE_PRECONDITION: "namenode:9870"
+      SERVICE_PRECONDITION: "namenode:50070"
     env_file:
       - ./hadoop.env
   
   resourcemanager:
-    image: bde2020/hadoop-resourcemanager:2.0.0-hadoop3.2.1-java8
+    image: bataeves/hadoop-resourcemanager:2.0.0-hadoop2.10.1-java8
     container_name: resourcemanager
     restart: always
     environment:
-      SERVICE_PRECONDITION: "namenode:9000 namenode:9870 datanode:9864"
+      SERVICE_PRECONDITION: "namenode:9000 namenode:50070 datanode:50075"
     env_file:
       - ./hadoop.env
+    ports:
+      - 8088:8088
+      - 8032
 
   nodemanager1:
-    image: bde2020/hadoop-nodemanager:2.0.0-hadoop3.2.1-java8
+    image: bataeves/hadoop-nodemanager:2.0.0-hadoop2.10.1-java8
     container_name: nodemanager
     restart: always
     environment:
-      SERVICE_PRECONDITION: "namenode:9000 namenode:9870 datanode:9864 resourcemanager:8088"
+      SERVICE_PRECONDITION: "namenode:9000 namenode:50070 datanode:50075 resourcemanager:8088"
     env_file:
       - ./hadoop.env
+    ports:
+      - 8042:8042
   
   historyserver:
-    image: bde2020/hadoop-historyserver:2.0.0-hadoop3.2.1-java8
+    image: bataeves/hadoop-historyserver:2.0.0-hadoop2.10.1-java8
     container_name: historyserver
     restart: always
     environment:
-      SERVICE_PRECONDITION: "namenode:9000 namenode:9870 datanode:9864 resourcemanager:8088"
+      SERVICE_PRECONDITION: "namenode:9000 namenode:50070 datanode:50075 resourcemanager:8088"
     volumes:
       - hadoop_historyserver:/hadoop/yarn/timeline
     env_file:
       - ./hadoop.env
+    ports:
+      - 8188:8188
   
 volumes:
   hadoop_namenode:
