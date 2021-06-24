@@ -11,6 +11,16 @@ build:
 	docker build -t bataeves/hadoop-submit:$(current_branch) ./submit
 	docker build -t bataeves/hadoop-spark:$(current_branch) ./spark
 
+push:
+	docker push bataeves/hadoop-base:$(current_branch)
+	docker push bataeves/hadoop-namenode:$(current_branch)
+	docker push bataeves/hadoop-datanode:$(current_branch)
+	docker push bataeves/hadoop-resourcemanager:$(current_branch)
+	docker push bataeves/hadoop-nodemanager:$(current_branch)
+	docker push bataeves/hadoop-historyserver:$(current_branch)
+	docker push bataeves/hadoop-submit:$(current_branch)
+	docker push bataeves/hadoop-spark:$(current_branch)
+
 wordcount:
 	docker build -t hadoop-wordcount ./submit
 	docker run --network ${DOCKER_NETWORK} --env-file ${ENV_FILE} bataeves/hadoop-base:$(current_branch) hdfs dfs -mkdir -p /input/
